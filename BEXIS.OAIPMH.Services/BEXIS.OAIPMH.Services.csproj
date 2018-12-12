@@ -1,14 +1,14 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9472D367-8FB1-4009-B648-104B3D015CE9}</ProjectGuid>
+    <ProjectGuid>{B423A986-EB03-4696-AADE-A5E8EA11FC73}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BEXIS.TEMPLATE.Entities</RootNamespace>
-    <AssemblyName>BEXIS.TEMPLATE.Entities</AssemblyName>
+    <RootNamespace>BEXIS.OAIPMH.Services</RootNamespace>
+    <AssemblyName>BEXIS.OAIPMH.Services</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -42,11 +42,21 @@
     <Reference Include="Vaiona.Entities">
       <HintPath>..\..\..\..\..\Libraries\Vaiona\Vaiona.Entities.dll</HintPath>
     </Reference>
+    <Reference Include="Vaiona.Persistence.Api">
+      <HintPath>..\..\..\..\..\Libraries\Vaiona\Vaiona.Persistence.Api.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\Example.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ExampleManager.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\BEXIS.OAIPMH.Entities\BEXIS.OAIPMH.Entities.csproj">
+      <Project>{9472D367-8FB1-4009-B648-104B3D015CE9}</Project>
+      <Name>BEXIS.OAIPMH.Entities</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

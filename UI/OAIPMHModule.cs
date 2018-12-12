@@ -1,23 +1,23 @@
-﻿using BExIS.Modules.TEMPLATE.UI.Helpers;
+using BExIS.Modules.OAIPMH.UI.Helpers;
 using System;
 using Vaiona.Logging;
 using Vaiona.Web.Mvc.Modularity;
 
-namespace BExIS.Modules.TEMPLATE.UI
+namespace BExIS.Modules.OAIPMH.UI
 {
-    public class TEMPLATEModule : ModuleBase
+    public class OAIPMHModule : ModuleBase
     {
-        public TEMPLATEModule() : base("TEMPLATE")
+        public OAIPMHModule() : base("OAIPMH")
         {
-            LoggerFactory.GetFileLogger().LogCustom("...ctor of TEMPLATE...");
+            LoggerFactory.GetFileLogger().LogCustom("...ctor of OAIPMH...");
         }
         public override void Install()
         {
-            LoggerFactory.GetFileLogger().LogCustom("...start install of TEMPLATE...");
+            LoggerFactory.GetFileLogger().LogCustom("...start install of OAIPMH...");
             try
             {
                 base.Install();
-                using (TEMPLATESeedDataGenerator generator = new TEMPLATESeedDataGenerator())
+                using (OAIPMHSeedDataGenerator generator = new OAIPMHSeedDataGenerator())
                 {
                     generator.GenerateSeedData();
                 }
@@ -29,7 +29,7 @@ namespace BExIS.Modules.TEMPLATE.UI
                 LoggerFactory.GetFileLogger().LogCustom(e.StackTrace);
             }
 
-            LoggerFactory.GetFileLogger().LogCustom("...end install of TEMPLATE...");
+            LoggerFactory.GetFileLogger().LogCustom("...end install of OAIPMH...");
 
         }
         /// <summary>

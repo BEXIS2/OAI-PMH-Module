@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\..\..\..\packages\Microsoft.Net.Compilers.1.3.2\build\Microsoft.Net.Compilers.props" Condition="Exists('..\..\..\..\..\packages\Microsoft.Net.Compilers.1.3.2\build\Microsoft.Net.Compilers.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -12,8 +12,8 @@
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BExIS.Modules.TEMPLATE.UI</RootNamespace>
-    <AssemblyName>BExIS.Modules.TEMPLATE.UI</AssemblyName>
+    <RootNamespace>BExIS.Modules.OAIPMH.UI</RootNamespace>
+    <AssemblyName>BExIS.Modules.OAIPMH.UI</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
@@ -152,14 +152,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Helper\TEMPLATESeedDataGenerator.cs" />
+    <Compile Include="Helper\OAIPMHSeedDataGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TEMPLATEModule.cs" />
+    <Compile Include="OAIPMHModule.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="TEMPLATE.Settings.xml" />
+    <Content Include="OAIPMH.Settings.xml" />
     <Content Include="Content\Site.css" />
-    <Content Include="TEMPLATE.Manifest.xml">
+    <Content Include="OAIPMH.Manifest.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
@@ -230,13 +230,13 @@
       <Project>{c8a05313-b960-406e-92ec-c1e5b3f47fcd}</Project>
       <Name>BExIS.IO.Transform.Validation</Name>
     </ProjectReference>
-    <ProjectReference Include="..\BEXIS.TEMPLATE.Entities\BEXIS.TEMPLATE.Entities.csproj">
+    <ProjectReference Include="..\BEXIS.OAIPMH.Entities\BEXIS.OAIPMH.Entities.csproj">
       <Project>{9472d367-8fb1-4009-b648-104b3d015ce9}</Project>
-      <Name>BEXIS.TEMPLATE.Entities</Name>
+      <Name>BEXIS.OAIPMH.Entities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\BEXIS.TEMPLATE.Services\BEXIS.TEMPLATE.Services.csproj">
+    <ProjectReference Include="..\BEXIS.OAIPMH.Services\BEXIS.OAIPMH.Services.csproj">
       <Project>{b423a986-eb03-4696-aade-a5e8ea11fc73}</Project>
-      <Name>BEXIS.TEMPLATE.Services</Name>
+      <Name>BEXIS.OAIPMH.Services</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
@@ -275,8 +275,8 @@
     <Error Condition="!Exists('..\..\..\..\..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.3\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.3\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>mkdir "$(SolutionDir)Console\Workspace\Modules\TEMPLATE"
-C:\Windows\System32\xcopy "$(ProjectDir)TEMPLATE.Settings.xml" "$(SolutionDir)Console\Workspace\Modules\TEMPLATE" /C /Y /I</PostBuildEvent>
+    <PostBuildEvent>mkdir "$(SolutionDir)Console\Workspace\Modules\OAIPMH"
+C:\Windows\System32\xcopy "$(ProjectDir)OAIPMH.Settings.xml" "$(SolutionDir)Console\Workspace\Modules\OAIPMH" /C /Y /I</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

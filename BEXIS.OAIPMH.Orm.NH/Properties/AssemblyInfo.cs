@@ -1,16 +1,16 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("BEXIS.TEMPLATE.Entities")]
+[assembly: AssemblyTitle("BEXIS.OAIPMH.Orm.NH")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("BEXIS.TEMPLATE.Entities.Properties")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2018")]
+[assembly: AssemblyProduct("BEXIS.OAIPMH.Orm.NH.Properties")]
+[assembly: AssemblyCopyright("Copyright � Microsoft 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("6cd81af7-1ffc-45d2-a218-44023104364d")]
+[assembly: Guid("0160bedd-b3e3-4049-9fc9-113cd3e22cb6")]
 
 // Version information for an assembly consists of the following four values:
 //

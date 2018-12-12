@@ -1,2 +1,2 @@
-# BEXIS2ModuleTemplate
-Template of a bexis 2 module
+# BEXIS2ModuleOAIPMH
+OAIPMH of a bexis 2 module

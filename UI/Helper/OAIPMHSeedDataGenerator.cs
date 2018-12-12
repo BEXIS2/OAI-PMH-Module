@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 
-namespace BExIS.Modules.TEMPLATE.UI.Helpers
+namespace BExIS.Modules.OAIPMH.UI.Helpers
 {
-    public class TEMPLATESeedDataGenerator : IDisposable
+    public class OAIPMHSeedDataGenerator : IDisposable
     {
         public void GenerateSeedData()
         {

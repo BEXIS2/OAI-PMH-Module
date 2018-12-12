@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -7,8 +7,8 @@
     <ProjectGuid>{9FD49D1E-FAAB-4C24-A70C-4A4EB5EC4A4F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BEXIS.TEMPLATE.Orm.NH</RootNamespace>
-    <AssemblyName>BEXIS.TEMPLATE.Orm.NH</AssemblyName>
+    <RootNamespace>BEXIS.OAIPMH.Orm.NH</RootNamespace>
+    <AssemblyName>BEXIS.OAIPMH.Orm.NH</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -56,7 +56,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>mkdir "$(SolutionDir)Console\Workspace\Modules\DIM"
-rmdir /S /Q  "$(SolutionDir)Console\Workspace\Modules\TEMPLATE\Db\Mappings"
-C:\Windows\System32\xcopy "$(ProjectDir)Mappings" "$(SolutionDir)Console\Workspace\Modules\TEMPLATE\Db\Mappings" /E /C /Y /I</PostBuildEvent>
+rmdir /S /Q  "$(SolutionDir)Console\Workspace\Modules\OAIPMH\Db\Mappings"
+C:\Windows\System32\xcopy "$(ProjectDir)Mappings" "$(SolutionDir)Console\Workspace\Modules\OAIPMH\Db\Mappings" /E /C /Y /I</PostBuildEvent>
   </PropertyGroup>
 </Project>

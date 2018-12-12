@@ -1,6 +1,6 @@
-﻿using Vaiona.Entities.Common;
+using Vaiona.Entities.Common;
 
-namespace BEXIS.TEMPLATE.Entities.Data
+namespace BEXIS.OAIPMH.Entities.Data
 {
     public class Example : BaseEntity
     {

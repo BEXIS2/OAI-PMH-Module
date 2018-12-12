@@ -1,11 +1,11 @@
-﻿using BEXIS.TEMPLATE.Entities.Data;
+using BEXIS.OAIPMH.Entities.Data;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using Vaiona.Persistence.Api;
 
-namespace BExIS.TEMPLATE.Services
+namespace BExIS.OAIPMH.Services
 {
     public class ExampleManager : IDisposable
     {

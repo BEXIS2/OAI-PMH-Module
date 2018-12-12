@@ -1,4 +1,4 @@
-﻿<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly="BEXIS.TEMPLATE.Entities" namespace="BEXIS.TEMPLATE.Entities.Data" >
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly="BEXIS.OAIPMH.Entities" namespace="BEXIS.OAIPMH.Entities.Data" >
   <class xmlns="urn:nhibernate-mapping-2.2" name="Example" table="Examples">
     <!-- Mapping BaseEntity properties -->
 
