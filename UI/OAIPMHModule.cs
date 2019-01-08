@@ -1,3 +1,4 @@
+using BExIS.Modules.OAIPMH.UI.App_Start;
 using BExIS.Modules.OAIPMH.UI.Helpers;
 using System;
 using Vaiona.Logging;
@@ -10,6 +11,10 @@ namespace BExIS.Modules.OAIPMH.UI
         public OAIPMHModule() : base("OAIPMH")
         {
             LoggerFactory.GetFileLogger().LogCustom("...ctor of OAIPMH...");
+
+            // set properties
+            OaiPmhConfig.Register();
+
         }
         public override void Install()
         {
