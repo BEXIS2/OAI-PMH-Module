@@ -155,11 +155,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API\Common\Enums.cs" />
+    <Compile Include="API\Common\FileHarvester.cs" />
     <Compile Include="API\Common\Helper.cs" />
     <Compile Include="API\Common\MlDecode.cs" />
     <Compile Include="API\Common\MlEncode.cs" />
     <Compile Include="API\Common\MlErrors.cs" />
     <Compile Include="API\Common\MlNamespaces.cs" />
+    <Compile Include="API\Common\Properties.cs" />
     <Compile Include="API\Common\ResumptionToken.cs" />
     <Compile Include="API\DataProvider.cs" />
     <Compile Include="API\Internal\RecordQueryResult.cs" />
@@ -180,6 +182,7 @@
     <Compile Include="Models\Header.cs" />
     <Compile Include="Models\Metadata.cs" />
     <Compile Include="Models\OAIDataProvider.cs" />
+    <Compile Include="Models\PageFileHarvestProperties.cs" />
     <Compile Include="Models\Property.cs" />
     <Compile Include="Properties.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

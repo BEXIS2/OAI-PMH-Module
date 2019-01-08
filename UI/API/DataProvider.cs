@@ -1,10 +1,15 @@
-﻿using BExIS.Modules.OAIPMH.UI.API.Common;
+﻿using BExIS.Dlm.Entities.Data;
+using BExIS.Dlm.Services.Data;
+using BExIS.Modules.OAIPMH.UI.API.Common;
 using BExIS.Modules.OAIPMH.UI.API.Internal;
 using BExIS.Modules.OAIPMH.UI.API.MdFormats;
 using BExIS.Modules.OAIPMH.UI.Helper;
 using BExIS.Modules.OAIPMH.UI.Models;
+using BExIS.Security.Services.Authorization;
+using BExIS.Security.Services.Objects;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 
 namespace BExIS.Modules.OAIPMH.UI.API
@@ -58,14 +63,14 @@ namespace BExIS.Modules.OAIPMH.UI.API
 
                         return Identify(errors);
                     }
-                //case "ListIdentifiers":
-                //case "ListRecords":
-                //    {
-                //        if (isIdentifier) errors.Add(MlErrors.badIdentifierArgumentNotAllowed);
+                case "ListIdentifiers":
+                case "ListRecords":
+                    {
+                        if (isIdentifier) errors.Add(MlErrors.badIdentifierArgumentNotAllowed);
 
-                //        return ListIdentifiersOrRecords(verb, from, until, metadataPrefix,
-                //            set, resumptionToken, false, errors, null);
-                //    }
+                        return ListIdentifiersOrRecords(verb, from, until, metadataPrefix,
+                            set, resumptionToken, false, errors, null);
+                    }
                 //case "ListMetadataFormats":
                 //    {
                 //        if (isFrom) errors.Add(MlErrors.badFromArgumentNotAllowed);
@@ -194,6 +199,268 @@ namespace BExIS.Modules.OAIPMH.UI.API
             return CreateXml(new XElement[] { request, theRecord });
 
         }
+
+        #region ListIdentifiers / ListRecords
+
+        public static XDocument ListIdentifiersOrRecords(
+            string verb,
+            string from,
+            string until,
+            string metadataPrefix,
+            string set,
+            string resumptionToken,
+            bool isRoundtrip,
+            List<XElement> errorList,
+            bool? loadAbout)
+        {
+            List<XElement> errors = errorList;
+            DateTime? fromDate = DateTime.MinValue;
+            DateTime? untilDate = DateTime.MaxValue;
+            /* VERB */
+            bool isRecord = false;
+            if (String.IsNullOrEmpty(verb) || !(verb == "ListIdentifiers" || verb == "ListRecords"))
+            {
+                errors.Add(MlErrors.badVerbArgument);
+            }
+            else
+            {
+                isRecord = verb == "ListRecords";
+            }
+            /* FROM */
+            bool isFrom = !String.IsNullOrEmpty(from);
+            fromDate = MlDecode.SafeDateTime(from);
+            if (isFrom && fromDate == null)
+            {
+                errors.Add(MlErrors.badFromArgument);
+            }
+            /* UNTIL */
+            bool isUntil = !String.IsNullOrEmpty(until);
+            untilDate = MlDecode.SafeDateTime(until);
+            if (isUntil && untilDate == null)
+            {
+                errors.Add(MlErrors.badUntilArgument);
+            }
+            if (isFrom && isUntil && fromDate > untilDate)
+            {
+                errors.Add(MlErrors.badFromAndUntilArgument);
+            }
+            /* METADATA PREFIX */
+            bool isPrefixOk = !String.IsNullOrEmpty(metadataPrefix);
+            /* SETS */
+            bool isSet = !String.IsNullOrEmpty(set);
+            if (isSet && !Properties.supportSets)
+            {
+                errors.Add(MlErrors.noSetHierarchy);
+            }
+            /* RESUMPTION TOKEN */
+            bool isResumption = !String.IsNullOrEmpty(resumptionToken);
+            if (isResumption && !isRoundtrip)
+            {
+                if (isFrom || isUntil || isPrefixOk || isSet)
+                {
+                    errors.Add(MlErrors.badResumptionArgumentOnly);
+                }
+
+                if (!(Properties.resumptionTokens.ContainsKey(resumptionToken) &&
+                    Properties.resumptionTokens[resumptionToken].Verb == verb &&
+                    Properties.resumptionTokens[resumptionToken].ExpirationDate >= DateTime.UtcNow))
+                {
+                    errors.Insert(0, MlErrors.badResumptionArgument);
+                }
+
+                if (errors.Count == 0)
+                {
+                    return ListIdentifiersOrRecords(
+                        verb,
+                        Properties.resumptionTokens[resumptionToken].From.HasValue ?
+                        Properties.resumptionTokens[resumptionToken].From.Value.ToUniversalTime().ToString(Properties.granularity) : null,
+                        Properties.resumptionTokens[resumptionToken].Until.HasValue ?
+                        Properties.resumptionTokens[resumptionToken].Until.Value.ToUniversalTime().ToString(Properties.granularity) : null,
+                        Properties.resumptionTokens[resumptionToken].MetadataPrefix,
+                        Properties.resumptionTokens[resumptionToken].Set,
+                        resumptionToken,
+                        true,
+                        errors,
+                        loadAbout);
+                }
+            }
+
+            if (!isPrefixOk) /* Check if the only required attribute is included in the request */
+            {
+                errors.Add(MlErrors.badMetadataArgument);
+            }
+            else if (FormatList.Prefix2Int(metadataPrefix) == 0)
+            {
+                errors.Add(MlErrors.cannotDisseminateFormat);
+            }
+
+            bool isAbout = loadAbout.HasValue ? loadAbout.Value : Properties.loadAbout;
+
+            XElement request = new XElement("request",
+                new XAttribute("verb", verb),
+                isFrom ? new XAttribute("from", from) : null,
+                isUntil ? new XAttribute("until", until) : null,
+                isPrefixOk ? new XAttribute("metadataPrefix", metadataPrefix) : null,
+                isSet ? new XAttribute("set", set) : null,
+                isResumption ? new XAttribute("resumptionToken", resumptionToken) : null,
+                Properties.baseURL);
+
+            if (errors.Count > 0)
+            {
+                errors.Insert(0, request); /* add request on the first position, that it will be diplayed before errors */
+                return CreateXml(errors.ToArray());
+            }
+
+            var records = new List<RecordQueryResult>();
+            List<string> sets = Common.Helper.GetAllSets(set);
+            var formatNum = FormatList.Prefix2Int(metadataPrefix);
+
+            EntityManager entityManager = new EntityManager();
+            EntityPermissionManager entityPermissionManager = new EntityPermissionManager();
+            DatasetManager datasetManager = new DatasetManager();
+            OAIHelper oaiHelper = new OAIHelper();
+
+            try
+            {
+
+
+
+                //1. Get list of all datasetids which shoudl be harvested - use also the existing parameters like from date
+
+                long? entityTypeId = entityManager.FindByName(typeof(Dataset).Name)?.Id;
+                entityTypeId = entityTypeId.HasValue ? entityTypeId.Value : -1;
+                List<long> datasetIds = datasetManager.GetDatasetLatestIds();
+
+                //2. Generate a list of headers
+                var recordsQuery = new List<Header>();
+
+                foreach (long id in datasetIds)
+                {
+                    if (entityPermissionManager.Exists(null, entityTypeId.Value, id))
+                    {
+                        recordsQuery.Add(oaiHelper.GetHeader(id));
+                    }
+                }
+
+                if (isSet)
+                {
+                    //recordsQuery = from rq in recordsQuery
+                    //               from s in context.OAISet
+                    //               from l in sets
+                    //               where s.Spec == l
+                    //               where rq.OAI_Set == s.Spec
+                    //               select rq;
+
+                    throw new NotImplementedException();
+                }
+
+                int recordsCount = recordsQuery.Count();
+
+                if (recordsCount == 0)
+                {
+                    return CreateXml(new XElement[] { request, MlErrors.noRecordsMatch });
+                }
+                else if (isRoundtrip)
+                {
+                    Properties.resumptionTokens[resumptionToken].CompleteListSize = recordsCount;
+                    recordsQuery = recordsQuery.AsEnumerable().Skip(
+                        Properties.resumptionTokens[resumptionToken].Cursor.Value).Take(
+                        isRecord ? Properties.maxRecordsInList : Properties.maxIdentifiersInList).ToList();
+                }
+                else if ((isRecord ? Properties.resumeListRecords : Properties.resumeListIdentifiers) &&
+                    (isRecord ? recordsCount > Properties.maxRecordsInList
+                    : recordsCount > Properties.maxIdentifiersInList))
+                {
+                    resumptionToken = Common.Helper.CreateGuid();
+                    isResumption = true;
+                    Properties.resumptionTokens.Add(resumptionToken,
+                        new ResumptionToken()
+                        {
+                            Verb = verb,
+                            From = isFrom ? fromDate : null,
+                            Until = isUntil ? untilDate : null,
+                            MetadataPrefix = metadataPrefix,
+                            Set = set,
+                            ExpirationDate = DateTime.UtcNow.Add(Properties.expirationTimeSpan),
+                            CompleteListSize = recordsCount,
+                            Cursor = 0
+                        });
+
+                    recordsQuery = recordsQuery.AsEnumerable().Take(
+                        isRecord ? Properties.maxRecordsInList : Properties.maxIdentifiersInList).ToList();
+                }
+
+                /* get data from database */
+                //var recGroup = (from rec in recordsQuery
+                //                join omd in context.ObjectMetadata on rec.HeaderId equals omd.ObjectId
+                //                join mdt in context.Metadata on omd.MetadataId equals mdt.MetadataId
+                //                group new { OmdMetaType = omd.MetadataType, OaiMetaData = mdt } by rec into grp
+                //                select grp).ToList();
+
+                /* distribute data into logical units */
+
+                foreach (var header in recordsQuery)
+                {
+                    long id = oaiHelper.ConvertToId(header.OAI_Identifier);
+                    //ToDo add about to the RecordQueryResult object, currently its only null
+                    records.Add(new RecordQueryResult(header, oaiHelper.GetMetadata(id, metadataPrefix), null));
+                }
+
+
+
+            }
+            finally
+            {
+                datasetManager.Dispose();
+                entityPermissionManager.Dispose();
+            }
+
+            bool isCompleted = isResumption ?
+                Properties.resumptionTokens[resumptionToken].Cursor + records.Count >=
+                Properties.resumptionTokens[resumptionToken].CompleteListSize :
+                false;
+
+            XElement list = new XElement(verb,
+                isRecord ?
+                    GetListRecords(records, isAbout) :
+                    GetListIdentifiers(records),
+                isResumption ? /* add resumption token or not */
+                    MlEncode.ResumptionToken(Properties.resumptionTokens[resumptionToken], resumptionToken, isCompleted)
+                    : null);
+
+            if (isResumption)
+            {
+                if (isCompleted)
+                {
+                    Properties.resumptionTokens.Remove(resumptionToken);
+                }
+                else
+                {
+                    Properties.resumptionTokens[resumptionToken].Cursor =
+                        Properties.resumptionTokens[resumptionToken].Cursor + records.Count;
+                }
+            }
+
+            return CreateXml(new XElement[] { request, list });
+        }
+
+        private static XElement[] GetListIdentifiers(List<RecordQueryResult> records)
+        {
+            return (from rec in records
+                    select MlEncode.HeaderItem(rec.Header, Properties.granularity)).ToArray();
+        }
+
+        private static XElement[] GetListRecords(List<RecordQueryResult> records, bool isAbout)
+        {
+            return (from rec in records
+                    select new XElement("record",
+                    MlEncode.HeaderItem(rec.Header, Properties.granularity),
+                    MlEncode.Metadata(rec.Metadata, Properties.granularity),
+                    isAbout ? MlEncode.About(rec.About, Properties.granularity) : null
+                   )).ToArray();
+        }
+
+        #endregion
 
         /// <summary>
         /// Creates response xml document

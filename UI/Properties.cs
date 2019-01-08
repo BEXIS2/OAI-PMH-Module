@@ -1,12 +1,15 @@
-﻿using BExIS.Modules.OAIPMH.UI.Models;
+﻿using BExIS.Modules.OAIPMH.UI.API.Common;
+using BExIS.Modules.OAIPMH.UI.Models;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace BExIS.Modules.OAIPMH.UI
 {
     public class Properties
     {
         private static ConcurrentDictionary<string, Property> properties = new ConcurrentDictionary<string, Property>();
+        public static Dictionary<string, ResumptionToken> resumptionTokens = new Dictionary<string, ResumptionToken>();
 
 
         #region /* Identify properties -------------------------------------------------------------*/
