@@ -323,13 +323,22 @@ namespace BExIS.Modules.OAIPMH.UI.API
             try
             {
 
-
-
-                //1. Get list of all datasetids which shoudl be harvested - use also the existing parameters like from date
-
+                //1. Get list of all datasetids which shoudl be harvested - 
+                // ToDo use also the existing parameters like from date
                 long? entityTypeId = entityManager.FindByName(typeof(Dataset).Name)?.Id;
                 entityTypeId = entityTypeId.HasValue ? entityTypeId.Value : -1;
+
+                // get all datasetids with the last modify date
+                List<long> dsvIds = datasetManager.GetDatasetVersionLatestIds();
+                // ToDo to get all datasets with the last modfied date, the datasetversionrepo of the dataset manager is used, but its many wrong because of session problem in the past
                 List<long> datasetIds = datasetManager.GetDatasetLatestIds();
+                datasetIds = datasetManager.DatasetVersionRepo.Query(dsv =>
+                    dsvIds.Contains(dsv.Id) &&
+                    dsv.Timestamp >= fromDate &&
+                    dsv.Timestamp <= untilDate
+                    ).Select(dsv => dsv.Dataset.Id).ToList();
+
+
 
                 //2. Generate a list of headers
                 var recordsQuery = new List<Header>();

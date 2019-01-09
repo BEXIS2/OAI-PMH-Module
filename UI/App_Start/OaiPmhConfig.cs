@@ -28,11 +28,11 @@ namespace BExIS.Modules.OAIPMH.UI.App_Start
             /* Data provider properties */
             props["SupportSets"] = new Property() { Key = "SupportSets", Value = "False", Section = "dpp" };
             props["ResumeListSets"] = new Property() { Key = "ResumeListSets", Value = "False", Section = "dpp" };
-            props["MaxSetsInList"] = new Property() { Key = "MaxSetsInList", Value = "30", Section = "dpp" };
+            props["MaxSetsInList"] = new Property() { Key = "MaxSetsInList", Value = "10", Section = "dpp" };
             props["ResumeListIdentifiers"] = new Property() { Key = "ResumeListIdentifiers", Value = "True", Section = "dpp" };
             props["MaxIdentifiersInList"] = new Property() { Key = "MaxIdentifiersInList", Value = "100", Section = "dpp" };
             props["ResumeListRecords"] = new Property() { Key = "ResumeListRecords", Value = "True", Section = "dpp" };
-            props["MaxRecordsInList"] = new Property() { Key = "MaxRecordsInList", Value = "30", Section = "dpp" };
+            props["MaxRecordsInList"] = new Property() { Key = "MaxRecordsInList", Value = "10", Section = "dpp" };
             props["ExpirationTimeSpan"] = new Property() { Key = "ExpirationTimeSpan", Value = new TimeSpan(1, 0, 0, 0).ToString(), Section = "dpp" };
             props["LoadAbout"] = new Property() { Key = "LoadAbout", Value = "True", Section = "dpp" };
 
