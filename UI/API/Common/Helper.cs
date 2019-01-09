@@ -41,7 +41,7 @@ namespace BExIS.Modules.OAIPMH.UI.API.Common
         public static bool ConvertUTCToDateTime(string utcString, out DateTime dateTime)
         {
             return DateTime.TryParseExact(utcString, dateFormats, CultureInfo.CurrentCulture,
-                DateTimeStyles.AssumeUniversal, out dateTime);
+                DateTimeStyles.AdjustToUniversal, out dateTime);
         }
 
         public static bool IsDateTimeFormat(string utcString)
