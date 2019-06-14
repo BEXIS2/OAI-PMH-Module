@@ -31,12 +31,25 @@ namespace BExIS.Modules.OAIPMH.UI.Controllers
         }
 
         // GET api/oai
+        [HttpGet]
         public HttpResponseMessage Get()
         {
             return Identify();
         }
 
         // GET api/oai
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="verb"></param>
+        /// <param name="from"></param>
+        /// <param name="until"></param>
+        /// <param name="metadataPrefix"></param>
+        /// <param name="set"></param>
+        /// <param name="resumptionToken"></param>
+        /// <param name="identifier"></param>
+        /// <returns></returns>
+        [HttpGet]
         public HttpResponseMessage Get(
             string verb,
             string from = null,
@@ -57,12 +70,14 @@ namespace BExIS.Modules.OAIPMH.UI.Controllers
         }
 
         // POST api/oai
+        [HttpPost]
         public HttpResponseMessage Post()
         {
             return Identify();
         }
 
         // POST api/oai
+        [HttpPost]
         public HttpResponseMessage Post(
             string verb,
             string from = null,
@@ -82,5 +97,4 @@ namespace BExIS.Modules.OAIPMH.UI.Controllers
                         identifier);
         }
     }
-
 }

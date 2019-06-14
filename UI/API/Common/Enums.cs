@@ -3,6 +3,7 @@
     public class Enums
     {
         /* What to do with duplicates when harvesting */
+
         public enum DeDuplication
         {
             AddDuplicate,
@@ -13,6 +14,7 @@
         }
 
         /* Support for deleted records */
+
         public class DeletedRecords
         {
             /* No information about deletion is kept */
@@ -53,11 +55,13 @@
         }
 
         /* List of supported metadata formats 2^* values */
+
         public enum MetadataFormats
         {
             None = 0,
             DublinCore = 1,
-            Provenance = 2
+            Provenance = 2,
+            PanSimple = 3
         }
     }
 }

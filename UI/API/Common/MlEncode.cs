@@ -19,16 +19,17 @@ namespace BExIS.Modules.OAIPMH.UI.API.Common
                     from s in rec.OAI_Set.Split(';')
                     select new XElement("setSpec", s));
         }
+
         public static async Task<XElement> HeaderItemAsync(Header rec, string granularity)
         {
             return await Task.Run<XElement>(() => HeaderItem(rec, granularity)).ConfigureAwait(false);
         }
 
-
         public static XElement Metadata(Metadata metadata, string granularity)
         {
             return Metadata("metadata", metadata, granularity);
         }
+
         public static XElement Metadata(string containerName, Metadata metadata, string granularity)
         {
             if (string.IsNullOrEmpty(containerName) || metadata == null || string.IsNullOrEmpty(granularity))
@@ -40,6 +41,10 @@ namespace BExIS.Modules.OAIPMH.UI.API.Common
             {
                 case Enums.MetadataFormats.DublinCore:
                     return new XElement(containerName, DublinCore.Encode(metadata, granularity));
+
+                case Enums.MetadataFormats.PanSimple:
+                    return new XElement(containerName, PanSimple.Encode(metadata, granularity));
+
                 case Enums.MetadataFormats.Provenance:
                     return new XElement(containerName, Provenance.Encode(metadata, granularity));
 
@@ -50,6 +55,7 @@ namespace BExIS.Modules.OAIPMH.UI.API.Common
                     return null;
             }
         }
+
         public static async Task<XElement> MetadataAsync(string containerName, Metadata metadata, string granularity)
         {
             return await Task.Run<XElement>(() => Metadata(containerName, metadata, granularity)).ConfigureAwait(false);
@@ -69,6 +75,11 @@ namespace BExIS.Modules.OAIPMH.UI.API.Common
                     case Enums.MetadataFormats.DublinCore:
                         yield return new XElement(containerName, DublinCore.Encode(metaItem, granularity));
                         break;
+
+                    case Enums.MetadataFormats.PanSimple:
+                        yield return new XElement(containerName, PanSimple.Encode(metaItem, granularity));
+                        break;
+
                     case Enums.MetadataFormats.Provenance:
                         yield return new XElement(containerName, Provenance.Encode(metaItem, granularity));
                         break;
@@ -88,6 +99,7 @@ namespace BExIS.Modules.OAIPMH.UI.API.Common
 
             return MetaList("about", aboutList, granularity);
         }
+
         public static async Task<IEnumerable<XElement>> AboutAsync(List<Metadata> aboutList, string granularity)
         {
             return await Task.Run<IEnumerable<XElement>>(() => About(aboutList, granularity)).ConfigureAwait(false);
@@ -97,6 +109,7 @@ namespace BExIS.Modules.OAIPMH.UI.API.Common
         {
             return MetaList("setDescription", setDescList, granularity);
         }
+
         public static async Task<IEnumerable<XElement>> SetDescriptionAsync(IList<Metadata> setDescList, string granularity)
         {
             return await Task.Run<IEnumerable<XElement>>(() => SetDescription(setDescList, granularity)).ConfigureAwait(false);

@@ -1,15 +1,15 @@
 ﻿/*     This file is part of OAI-PMH-.Net.
-*  
+*
 *      OAI-PMH-.Net is free software: you can redistribute it and/or modify
 *      it under the terms of the GNU General Public License as published by
 *      the Free Software Foundation, either version 3 of the License, or
 *      (at your option) any later version.
-*  
+*
 *      OAI-PMH-.Net is distributed in the hope that it will be useful,
 *      but WITHOUT ANY WARRANTY; without even the implied warranty of
 *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 *      GNU General Public License for more details.
-*  
+*
 *      You should have received a copy of the GNU General Public License
 *      along with OAI-PMH-.Net.  If not, see <http://www.gnu.org/licenses/>.
 *----------------------------------------------------------------------------*/
@@ -41,7 +41,6 @@ namespace BExIS.Modules.OAIPMH.UI.API.Common
             }
         }
 
-
         public static DateTime? SafeDateTime(XAttribute xa)
         {
             if (xa == null)
@@ -50,6 +49,7 @@ namespace BExIS.Modules.OAIPMH.UI.API.Common
             }
             return SafeDateTime(xa.Value);
         }
+
         public static DateTime? SafeDateTime(XElement xe)
         {
             if (xe == null)
@@ -58,6 +58,7 @@ namespace BExIS.Modules.OAIPMH.UI.API.Common
             }
             return SafeDateTime(xe.Value);
         }
+
         public static DateTime? SafeDateTime(string value)
         {
             DateTime date;
@@ -105,6 +106,7 @@ namespace BExIS.Modules.OAIPMH.UI.API.Common
                 })()
             };
         }
+
         public static async Task<Header> HeaderAsync(XElement header)
         {
             return await Task.Run<Header>(() => Header(header)).ConfigureAwait(false);
@@ -121,14 +123,19 @@ namespace BExIS.Modules.OAIPMH.UI.API.Common
             {
                 case "oai_dc":
                     return DublinCore.Decode(metadata);
+
                 case "provenance":
                     return Provenance.Decode(metadata);
+
+                case "pan_simple":
+                    return PanSimple.Decode(metadata);
 
                 // TODO: Add format here
 
                 default: return null;
             }
         }
+
         public static async Task<Metadata> MetadataAsync(XElement metadata, string format)
         {
             return await Task.Run<Metadata>(() => Metadata(metadata, format)).ConfigureAwait(false);
@@ -148,8 +155,13 @@ namespace BExIS.Modules.OAIPMH.UI.API.Common
                     case "oai_dc":
                         yield return DublinCore.Decode(item);
                         break;
+
                     case "provenance":
                         yield return Provenance.Decode(item);
+                        break;
+
+                    case "pan_simple":
+                        yield return PanSimple.Decode(item);
                         break;
 
                     // TODO: Add format here
@@ -159,6 +171,7 @@ namespace BExIS.Modules.OAIPMH.UI.API.Common
                 }
             }
         }
+
         public static async Task<IEnumerable<Metadata>> MetaListAsync(IList<XElement> metaList)
         {
             return await Task.Run<IEnumerable<Metadata>>(() => MetaList(metaList)).ConfigureAwait(false);

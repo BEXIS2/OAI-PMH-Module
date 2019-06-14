@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -48,12 +48,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExampleManager.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\BEXIS.OAIPMH.Entities\BEXIS.OAIPMH.Entities.csproj">
-      <Project>{9472D367-8FB1-4009-B648-104B3D015CE9}</Project>
-      <Name>BEXIS.OAIPMH.Entities</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

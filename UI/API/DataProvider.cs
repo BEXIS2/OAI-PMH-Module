@@ -33,7 +33,6 @@ namespace BExIS.Modules.OAIPMH.UI.API
             bool isResumption = !String.IsNullOrEmpty(resumptionToken);
             bool isIdentifier = !String.IsNullOrEmpty(identifier);
 
-
             if (!isVerb)
             {
                 XElement request = new XElement("request", Properties.baseURL);
@@ -162,7 +161,6 @@ namespace BExIS.Modules.OAIPMH.UI.API
                 }
                 else
                 {
-
                     record = new RecordQueryResult(header, helper.GetMetadata(datasetId, metadataPrefix));
 
                     // ToDo Check About in the documentaion of oai-pmh
@@ -174,7 +172,6 @@ namespace BExIS.Modules.OAIPMH.UI.API
                     }
                 }
             }
-
 
             XElement request = new XElement("request",
                 new XAttribute("verb", "GetRecord"),
@@ -188,16 +185,13 @@ namespace BExIS.Modules.OAIPMH.UI.API
                 return CreateXml(errors.ToArray());
             }
 
-
             XElement theRecord = new XElement("GetRecord",
                 new XElement("record",
                     MlEncode.HeaderItem(record.Header, Properties.granularity),
                     MlEncode.Metadata(record.Metadata, Properties.granularity)),
                     isAbout ? MlEncode.About(record.About, Properties.granularity) : null);
 
-
             return CreateXml(new XElement[] { request, theRecord });
-
         }
 
         #region ListIdentifiers / ListRecords
@@ -322,8 +316,7 @@ namespace BExIS.Modules.OAIPMH.UI.API
 
             try
             {
-
-                //1. Get list of all datasetids which shoudl be harvested - 
+                //1. Get list of all datasetids which shoudl be harvested -
                 // ToDo use also the existing parameters like from date
                 long? entityTypeId = entityManager.FindByName(typeof(Dataset).Name)?.Id;
                 entityTypeId = entityTypeId.HasValue ? entityTypeId.Value : -1;
@@ -337,8 +330,6 @@ namespace BExIS.Modules.OAIPMH.UI.API
                     dsv.Timestamp >= fromDate &&
                     dsv.Timestamp <= untilDate
                     ).Select(dsv => dsv.Dataset.Id).ToList();
-
-
 
                 //2. Generate a list of headers
                 var recordsQuery = new List<Header>();
@@ -414,9 +405,6 @@ namespace BExIS.Modules.OAIPMH.UI.API
                     //ToDo add about to the RecordQueryResult object, currently its only null
                     records.Add(new RecordQueryResult(header, oaiHelper.GetMetadata(id, metadataPrefix), null));
                 }
-
-
-
             }
             finally
             {
@@ -469,12 +457,12 @@ namespace BExIS.Modules.OAIPMH.UI.API
                    )).ToArray();
         }
 
-        #endregion
+        #endregion ListIdentifiers / ListRecords
 
         /// <summary>
         /// Creates response xml document
         /// </summary>
-        /// <param name="oaiElements">First oai element should be request and second should be either an error 
+        /// <param name="oaiElements">First oai element should be request and second should be either an error
         /// or element with the same name as the verb.</param>
         /// <returns>Complete response aml document</returns>
         private static XDocument CreateXml(XElement[] oaiElements)

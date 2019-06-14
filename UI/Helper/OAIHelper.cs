@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+using Vaiona.Utils.Cfg;
 
 namespace BExIS.Modules.OAIPMH.UI.Helper
 {
@@ -23,7 +24,6 @@ namespace BExIS.Modules.OAIPMH.UI.Helper
 
             try
             {
-
                 DatasetVersion datasetVersion = datasetManager.GetDatasetLatestVersion(id);
                 DateTime lastModified = datasetVersion.Timestamp;
 
@@ -33,8 +33,6 @@ namespace BExIS.Modules.OAIPMH.UI.Helper
                 header.Datestamp = lastModified;//Date Last Modified;
                 header.Deleted = false;
                 header.OAIDataProviderId = -1;
-
-
 
                 return header;
             }
@@ -51,7 +49,6 @@ namespace BExIS.Modules.OAIPMH.UI.Helper
         /// <returns></returns>
         public Metadata GetMetadata(long id, string metadataPrefix)
         {
-
             DatasetManager datasetManager = new DatasetManager();
 
             try
@@ -83,10 +80,24 @@ namespace BExIS.Modules.OAIPMH.UI.Helper
                 metadata.Coverage = MappingUtils.GetValuesFromMetadata(Convert.ToInt64(Key.Coverage), LinkElementType.Key, mdId, xMetadata).FirstOrDefault();
                 metadata.Rights = MappingUtils.GetValuesFromMetadata(Convert.ToInt64(Key.Rights), LinkElementType.Key, mdId, xMetadata).FirstOrDefault();
 
+                //relinks
+                metadata.ParentIdentifier = MappingUtils.GetValuesFromMetadata(Convert.ToInt64(Key.Relation), LinkElementType.Key, mdId, xMetadata).FirstOrDefault();
+                metadata.AdditionalContent = MappingUtils.GetValuesFromMetadata(Convert.ToInt64(Key.Description), LinkElementType.Key, mdId, xMetadata).FirstOrDefault();
+                //metadata.DataCenter = MappingUtils.GetValuesFromMetadata(Convert.ToInt64(Key.Publisher), LinkElementType.Key, mdId, xMetadata).FirstOrDefault();
+                metadata.PrincipalInvestigator = MappingUtils.GetValuesFromMetadata(Convert.ToInt64(Key.Contributor), LinkElementType.Key, mdId, xMetadata).FirstOrDefault();
 
                 //set metadata prefix
                 var formatNum = FormatList.Prefix2Int(metadataPrefix);
                 metadata.MdFormat = formatNum;
+
+                // linkTypes
+                metadata.DataCenter = AppConfiguration.ApplicationName;
+
+                metadata.AddtionalData.Add(Metadata.METADATA_URL.ToString(), "metadata url");
+                metadata.AddtionalData.Add(Metadata.DATA_URL.ToString(), "data url");
+
+                metadata.CoverageComplex = new Coverage();
+                metadata.CoverageComplex.Location = MappingUtils.GetValuesFromMetadata(Convert.ToInt64(Key.Coverage), LinkElementType.Key, mdId, xMetadata).FirstOrDefault();
 
                 return metadata;
             }
@@ -96,12 +107,10 @@ namespace BExIS.Modules.OAIPMH.UI.Helper
             }
         }
 
-
         //helper
 
         public string ConvertToOaiId(long id)
         {
-
             if (id <= 0) return "";
 
             string ServerName = Properties.baseURL;
@@ -109,9 +118,7 @@ namespace BExIS.Modules.OAIPMH.UI.Helper
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("oai:{0}:{1}", ServerName, id);
 
-
             return sb.ToString();
-
         }
 
         public long ConvertToId(string OaiId)
@@ -121,7 +128,6 @@ namespace BExIS.Modules.OAIPMH.UI.Helper
             var list = OaiId.Split(':');
             var last = list[list.Length - 1];
 
-
             long id;
             if (long.TryParse(last, out id))
             {
@@ -130,6 +136,5 @@ namespace BExIS.Modules.OAIPMH.UI.Helper
 
             return -1;
         }
-
     }
 }

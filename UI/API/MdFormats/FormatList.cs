@@ -1,15 +1,15 @@
 ﻿/*     This file is part of OAI-PMH-.Net.
-*  
+*
 *      OAI-PMH-.Net is free software: you can redistribute it and/or modify
 *      it under the terms of the GNU General Public License as published by
 *      the Free Software Foundation, either version 3 of the License, or
 *      (at your option) any later version.
-*  
+*
 *      OAI-PMH-.Net is distributed in the hope that it will be useful,
 *      but WITHOUT ANY WARRANTY; without even the implied warranty of
 *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 *      GNU General Public License for more details.
-*  
+*
 *      You should have received a copy of the GNU General Public License
 *      along with OAI-PMH-.Net.  If not, see <http://www.gnu.org/licenses/>.
 *----------------------------------------------------------------------------*/
@@ -29,6 +29,7 @@ namespace BExIS.Modules.OAIPMH.UI.API.MdFormats
                 var tmp = new List<OAIMetadataFormat>();
                 tmp.Add(oai_dc);
                 tmp.Add(provenance);
+                tmp.Add(pan_simple);
 
                 // TODO: Add format here
 
@@ -45,6 +46,15 @@ namespace BExIS.Modules.OAIPMH.UI.API.MdFormats
             Schema = "http://www.openarchives.org/OAI/2.0/oai_dc.xsd",
             Namespace = "http://www.openarchives.org/OAI/2.0/oai_dc/",
             FormatNum = Enums.MetadataFormats.DublinCore,
+            IsForList = true
+        };
+
+        public static OAIMetadataFormat pan_simple = new OAIMetadataFormat()
+        {
+            Prefix = "pan_simple",
+            Schema = "http://ws.pangaea.de/schemas/pansimple/pansimple.xsdc",
+            Namespace = "urn:pangaea.de:dataportals",
+            FormatNum = Enums.MetadataFormats.PanSimple,
             IsForList = true
         };
 
@@ -65,6 +75,10 @@ namespace BExIS.Modules.OAIPMH.UI.API.MdFormats
             {
                 case "oai_dc":
                     return (int)Enums.MetadataFormats.DublinCore;
+
+                case "pan_simple":
+                    return (int)Enums.MetadataFormats.PanSimple;
+
                 case "provenance":
                     return (int)Enums.MetadataFormats.Provenance;
 
@@ -91,13 +105,15 @@ namespace BExIS.Modules.OAIPMH.UI.API.MdFormats
         {
             return IsInFormat(mdFormat, (int)format);
         }
+
         public static bool IsInFormat(int mdFormat, string metadataPrefix)
         {
             return IsInFormat(mdFormat, Prefix2Int(metadataPrefix));
         }
+
         public static bool IsInFormat(int mdFormat, int formatNum)
         {
-            return (mdFormat & formatNum) != 0;
+            return (mdFormat == formatNum);
         }
 
         public static IEnumerable<OAIMetadataFormat> GetAllFormatsFromInt(int mdFormat)
