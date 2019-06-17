@@ -1,6 +1,13 @@
-﻿using BExIS.Modules.OAIPMH.UI.API.Common;
+﻿using BExIS.Dlm.Services.Data;
+using BExIS.Modules.OAIPMH.UI.API.Common;
 using BExIS.Modules.OAIPMH.UI.Models;
+using BExIS.Xml.Helpers;
 using System;
+using System.Configuration;
+using System.IO;
+using System.Xml;
+using System.Xml.Linq;
+using Vaiona.Utils.Cfg;
 
 namespace BExIS.Modules.OAIPMH.UI.App_Start
 {
@@ -8,35 +15,70 @@ namespace BExIS.Modules.OAIPMH.UI.App_Start
     {
         public static void Register()
         {
+            XDocument config;
 
-            Properties props = new Properties();
+            try
+            {
+                string filepath = Path.Combine(AppConfiguration.GetModuleWorkspacePath("OAIPMH"), "OAIPMH.Settings.xml");
+                if (!File.Exists(filepath)) throw new NullReferenceException("OAIPMH.Settings.xml is missing in the workspace.");
 
-            /* Set default settings */
-            /* Identify properties */
-            props["RepositoryName"] = new Property() { Key = "RepositoryName", Value = "Test repository", Section = "ip" };
-            props["BaseURL"] = new Property() { Key = "BaseURL", Value = "http://localhost:44345/api/oai", Section = "ip" };
-            props["ProtocolVersion"] = new Property() { Key = "ProtocolVersion", Value = "2.0", Section = "ip" };
+                using (var reader = XmlReader.Create(filepath))
+                {
+                    config = XDocument.Load(reader);
 
-            //ToDo SQLDATE CHECK
-            props["EarliestDatestamp"] = new Property() { Key = "EarliestDatestamp", Value = "" };//SqlDateTime.MinValue.Value.ToString(Enums.Granularity.DateTime), Section = "ip" };
+                    if (config != null)
+                    {
+                        Properties props = new Properties();
 
-            props["DeletedRecord"] = new Property() { Key = "DeletedRecord", Value = Enums.DeletedRecords.No, Section = "ip" };
-            props["Granularity"] = new Property() { Key = "Granularity", Value = Enums.Granularity.DateTime, Section = "ip" };
-            props["AdminEmails"] = new Property() { Key = "AdminEmails", Value = "test@domain.com", Section = "ip" };
-            props["Compression"] = new Property() { Key = "Compression", Value = null, Section = "ip" };
-            props["Description"] = new Property() { Key = "Description", Value = null, Section = "ip" };
-            /* Data provider properties */
-            props["SupportSets"] = new Property() { Key = "SupportSets", Value = "False", Section = "dpp" };
-            props["ResumeListSets"] = new Property() { Key = "ResumeListSets", Value = "False", Section = "dpp" };
-            props["MaxSetsInList"] = new Property() { Key = "MaxSetsInList", Value = "10", Section = "dpp" };
-            props["ResumeListIdentifiers"] = new Property() { Key = "ResumeListIdentifiers", Value = "True", Section = "dpp" };
-            props["MaxIdentifiersInList"] = new Property() { Key = "MaxIdentifiersInList", Value = "100", Section = "dpp" };
-            props["ResumeListRecords"] = new Property() { Key = "ResumeListRecords", Value = "True", Section = "dpp" };
-            props["MaxRecordsInList"] = new Property() { Key = "MaxRecordsInList", Value = "10", Section = "dpp" };
-            props["ExpirationTimeSpan"] = new Property() { Key = "ExpirationTimeSpan", Value = new TimeSpan(1, 0, 0, 0).ToString(), Section = "dpp" };
-            props["LoadAbout"] = new Property() { Key = "LoadAbout", Value = "True", Section = "dpp" };
+                        /* Set default settings */
+                        /* Identify properties */
+                        props["RepositoryName"] = new Property() { Key = "RepositoryName", Value = AppConfiguration.ApplicationName, Section = "ip" };
+                        props["BaseURL"] = new Property() { Key = "BaseURL", Value = getValue("BaseURL", config), Section = "ip" };
+                        props["ProtocolVersion"] = new Property() { Key = "ProtocolVersion", Value = "2.0", Section = "ip" };
 
+                        //ToDo SQLDATE CHECK
+                        props["EarliestDatestamp"] = new Property() { Key = "EarliestDatestamp", Value = getValue("EarliestDatestamp", config) };//SqlDateTime.MinValue.Value.ToString(Enums.Granularity.DateTime), Section = "ip" };
+
+                        props["DeletedRecord"] = new Property() { Key = "DeletedRecord", Value = getValue("DeletedRecord", config), Section = "ip" };
+                        props["Granularity"] = new Property() { Key = "Granularity", Value = getValue("Granularity", config), Section = "ip" };
+
+                        props["AdminEmails"] = new Property() { Key = "AdminEmails", Value = ConfigurationManager.AppSettings["SystemEmail"].ToString(), Section = "ip" };
+
+                        props["Compression"] = new Property() { Key = "Compression", Value = getValue("Compression", config), Section = "ip" };
+                        props["Description"] = new Property() { Key = "Description", Value = getValue("Description", config), Section = "ip" };
+                        /* Data provider properties */
+                        props["SupportSets"] = new Property() { Key = "SupportSets", Value = getValue("SupportSets", config), Section = "dpp" };
+                        props["ResumeListSets"] = new Property() { Key = "ResumeListSets", Value = getValue("ResumeListSets", config), Section = "dpp" };
+                        props["MaxSetsInList"] = new Property() { Key = "MaxSetsInList", Value = getValue("MaxSetsInList", config), Section = "dpp" };
+                        props["ResumeListIdentifiers"] = new Property() { Key = "ResumeListIdentifiers", Value = getValue("ResumeListIdentifiers", config), Section = "dpp" };
+                        props["MaxIdentifiersInList"] = new Property() { Key = "MaxIdentifiersInList", Value = getValue("MaxIdentifiersInList", config), Section = "dpp" };
+                        props["ResumeListRecords"] = new Property() { Key = "ResumeListRecords", Value = getValue("ResumeListRecords", config), Section = "dpp" };
+                        props["MaxRecordsInList"] = new Property() { Key = "MaxRecordsInList", Value = getValue("MaxRecordsInList", config), Section = "dpp" };
+                        props["ExpirationTimeSpan"] = new Property() { Key = "ExpirationTimeSpan", Value = getValue("ExpirationTimeSpan", config), Section = "dpp" };
+                        props["LoadAbout"] = new Property() { Key = "LoadAbout", Value = "True", Section = getValue("LoadAbout", config) };
+                    }
+                    else
+                    {
+                        throw new NullReferenceException("OAIPMH.Settings.xml is missing in the workspace.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
+        private static string getValue(string key, XDocument config)
+        {
+            XElement tmp = XmlUtility.GetXElementByAttribute("entry", "key", key, config);
+            if (tmp != null && tmp.HasAttributes && tmp.Attribute("value") != null)
+            {
+                XAttribute attr = tmp.Attribute("value");
+                return attr.Value;
+            }
+
+            return "";
+        }
     }
 }

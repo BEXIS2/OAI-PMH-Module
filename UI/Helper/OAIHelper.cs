@@ -6,8 +6,10 @@ using BExIS.Modules.OAIPMH.UI.API.MdFormats;
 using BExIS.Modules.OAIPMH.UI.Models;
 using BExIS.Xml.Helpers;
 using System;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Web;
 using System.Xml.Linq;
 using Vaiona.Utils.Cfg;
 
@@ -50,7 +52,6 @@ namespace BExIS.Modules.OAIPMH.UI.Helper
         public Metadata GetMetadata(long id, string metadataPrefix)
         {
             DatasetManager datasetManager = new DatasetManager();
-
             try
             {
                 DatasetVersion datasetVersion = datasetManager.GetDatasetLatestVersion(id);
@@ -93,8 +94,11 @@ namespace BExIS.Modules.OAIPMH.UI.Helper
                 // linkTypes
                 metadata.DataCenter = AppConfiguration.ApplicationName;
 
-                metadata.AddtionalData.Add(Metadata.METADATA_URL.ToString(), "metadata url");
-                metadata.AddtionalData.Add(Metadata.DATA_URL.ToString(), "data url");
+                //ToDo add version to the path
+                string server = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+                string url = server + "/ddm/data/showdata/" + id;
+                metadata.AddtionalData.Add(Metadata.METADATA_URL.ToString(), url);
+                metadata.AddtionalData.Add(Metadata.DATA_URL.ToString(), url);
 
                 metadata.CoverageComplex = new Coverage();
                 metadata.CoverageComplex.Location = MappingUtils.GetValuesFromMetadata(Convert.ToInt64(Key.Coverage), LinkElementType.Key, mdId, xMetadata).FirstOrDefault();
@@ -113,7 +117,12 @@ namespace BExIS.Modules.OAIPMH.UI.Helper
         {
             if (id <= 0) return "";
 
-            string ServerName = Properties.baseURL;
+            //Todo thinking abaout a good id for oai pmh
+            //https://localhost:44345/api/oai
+            var tmp = Properties.baseURL.Split('/');
+            string ServerName = tmp[2];
+
+            if (ServerName.Contains("www.")) ServerName.Replace("www.", "");
 
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("oai:{0}:{1}", ServerName, id);
