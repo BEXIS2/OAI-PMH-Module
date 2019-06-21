@@ -8,6 +8,8 @@ using System.IO;
 using System.Xml;
 using System.Xml.Linq;
 using Vaiona.Utils.Cfg;
+using System.Linq;
+using BExIS.Modules.OAIPMH.UI.Helper;
 
 namespace BExIS.Modules.OAIPMH.UI.App_Start
 {
@@ -19,6 +21,8 @@ namespace BExIS.Modules.OAIPMH.UI.App_Start
 
             try
             {
+                OAIHelper helper = new OAIHelper();
+
                 string filepath = Path.Combine(AppConfiguration.GetModuleWorkspacePath("OAIPMH"), "OAIPMH.Settings.xml");
                 if (!File.Exists(filepath)) throw new NullReferenceException("OAIPMH.Settings.xml is missing in the workspace.");
 
@@ -32,16 +36,22 @@ namespace BExIS.Modules.OAIPMH.UI.App_Start
 
                         /* Set default settings */
                         /* Identify properties */
+                        string repositoryName = getValue("RepositoryName", config);
+                        if (string.IsNullOrEmpty(repositoryName)) repositoryName = AppConfiguration.ApplicationName;
                         props["RepositoryName"] = new Property() { Key = "RepositoryName", Value = AppConfiguration.ApplicationName, Section = "ip" };
+
                         props["BaseURL"] = new Property() { Key = "BaseURL", Value = getValue("BaseURL", config), Section = "ip" };
                         props["ProtocolVersion"] = new Property() { Key = "ProtocolVersion", Value = "2.0", Section = "ip" };
 
                         //ToDo SQLDATE CHECK
-                        props["EarliestDatestamp"] = new Property() { Key = "EarliestDatestamp", Value = getValue("EarliestDatestamp", config) };//SqlDateTime.MinValue.Value.ToString(Enums.Granularity.DateTime), Section = "ip" };
+                        props["EarliestDatestamp"] = new Property() { Key = "EarliestDatestamp", Value = "" };
 
                         props["DeletedRecord"] = new Property() { Key = "DeletedRecord", Value = getValue("DeletedRecord", config), Section = "ip" };
                         props["Granularity"] = new Property() { Key = "Granularity", Value = getValue("Granularity", config), Section = "ip" };
 
+                        //send admin email
+                        string adminEmail = getValue("AdminEmails", config);
+                        if (string.IsNullOrEmpty(adminEmail)) adminEmail = ConfigurationManager.AppSettings["SystemEmail"].ToString();
                         props["AdminEmails"] = new Property() { Key = "AdminEmails", Value = ConfigurationManager.AppSettings["SystemEmail"].ToString(), Section = "ip" };
 
                         props["Compression"] = new Property() { Key = "Compression", Value = getValue("Compression", config), Section = "ip" };

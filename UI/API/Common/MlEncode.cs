@@ -12,6 +12,9 @@ namespace BExIS.Modules.OAIPMH.UI.API.Common
     {
         public static XElement HeaderItem(Header rec, string granularity)
         {
+            granularity = granularity.Replace("Y", "y");
+            granularity = granularity.Replace("D", "d");
+
             return rec == null ? null
                 : new XElement("header",
                     new XElement("identifier", rec.OAI_Identifier),

@@ -11,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using Vaiona.Model.MTnt;
+using static BExIS.Modules.OAIPMH.UI.API.Common.Enums;
 
 namespace BExIS.Modules.OAIPMH.UI.API
 {
@@ -70,16 +72,16 @@ namespace BExIS.Modules.OAIPMH.UI.API
                         return ListIdentifiersOrRecords(verb, from, until, metadataPrefix,
                             set, resumptionToken, false, errors, null);
                     }
-                //case "ListMetadataFormats":
-                //    {
-                //        if (isFrom) errors.Add(MlErrors.badFromArgumentNotAllowed);
-                //        if (isUntil) errors.Add(MlErrors.badUntilArgumentNotAllowed);
-                //        if (isPrefixOk) errors.Add(MlErrors.badMetadataArgumentNotAllowed);
-                //        if (isSet) errors.Add(MlErrors.badSetArgumentNotAllowed);
-                //        if (isResumption) errors.Add(MlErrors.badResumptionArgumentNotAllowed);
+                case "ListMetadataFormats":
+                    {
+                        if (isFrom) errors.Add(MlErrors.badFromArgumentNotAllowed);
+                        if (isUntil) errors.Add(MlErrors.badUntilArgumentNotAllowed);
+                        if (isPrefixOk) errors.Add(MlErrors.badMetadataArgumentNotAllowed);
+                        if (isSet) errors.Add(MlErrors.badSetArgumentNotAllowed);
+                        if (isResumption) errors.Add(MlErrors.badResumptionArgumentNotAllowed);
 
-                //        return ListMetadataFormats(identifier, errors);
-                //    }
+                        return ListMetadataFormats(identifier, errors);
+                    }
                 //case "ListSets":
                 //    {
                 //        if (isFrom) errors.Add(MlErrors.badFromArgumentNotAllowed);
@@ -104,6 +106,9 @@ namespace BExIS.Modules.OAIPMH.UI.API
                                             new XAttribute("verb", "Identify"),
                                             Properties.baseURL);
 
+            OAIHelper oaiHelper = new OAIHelper();
+            string earliestDatestamp = oaiHelper.EarliestDatestamp();
+
             if (errorList.Count == 0)
             {
                 XElement identify = new XElement("Identify",
@@ -111,11 +116,11 @@ namespace BExIS.Modules.OAIPMH.UI.API
                     new XElement("baseURL", Properties.baseURL),
                     new XElement("protocolVersion", Properties.protocolVersion),
                     new XElement("adminEmail", Properties.adminEmails),
-                    new XElement("earliestDatestamp", Properties.earliestDatestamp),
+                    new XElement("earliestDatestamp", earliestDatestamp),
                     new XElement("deletedRecord", Properties.deletedRecord),
-                    new XElement("granularity", Properties.granularity.Replace("'", "")),
+                    new XElement("granularity", Properties.granularity),
                     new XElement("compression", Properties.compression),
-                    Properties.description != null ? Properties.description : null);
+                Properties.description != null ? Properties.description : null);
 
                 return CreateXml(new XElement[] { request, identify });
             }
@@ -124,7 +129,7 @@ namespace BExIS.Modules.OAIPMH.UI.API
             return CreateXml(errorList.ToArray());
         }
 
-        public static XDocument GetRecord(string identifier, string metadataPrefix, List<XElement> errorList, bool? loadAbout)
+        public static XDocument GetRecord(string identifier, string metadataPrefix, List<XElement> errorList, bool? loadAbout, Tenant tenant = null)
         {
             List<XElement> errors = errorList;
 
@@ -458,6 +463,117 @@ namespace BExIS.Modules.OAIPMH.UI.API
         }
 
         #endregion ListIdentifiers / ListRecords
+
+        #region metadatalist
+
+        public static XDocument ListMetadataFormats(string identifier, List<XElement> errorList)
+        {
+            List<XElement> errors = errorList;
+
+            bool isIdentifier = !String.IsNullOrEmpty(identifier);
+
+            XElement request = new XElement("request",
+                new XAttribute("verb", "ListMetadataFormats"),
+                isIdentifier ? new XAttribute("identifier", identifier) : null,
+                Properties.baseURL);
+
+            List<OAIMetadataFormat> metadataFormats = new List<OAIMetadataFormat>();
+
+            metadataFormats = FormatList.List.Where(m => m.IsForList == true).ToList();
+
+            if (errors.Count > 0)
+            {
+                errors.Insert(0, request); /* add request on the first position, that it will be diplayed before errors */
+                return CreateXml(errors.ToArray());
+            }
+
+            XElement listMetadataFormats = new XElement("ListMetadataFormats",
+                from mf in metadataFormats
+                where mf.IsForList
+                select new XElement("metadataFormat",
+                    new XElement("metadataPrefix", mf.Prefix),
+                    new XElement("schema", mf.Schema),
+                    new XElement("metadataNamespace", mf.Namespace)));
+
+            return CreateXml(new XElement[] { request, listMetadataFormats });
+        }
+
+        #endregion metadatalist
+
+        #region listSets
+
+        public static XDocument ListSets(string resumptionToken, bool isRoundtrip, List<XElement> errorList)
+        {
+            List<XElement> errors = errorList;
+
+            if (!Properties.supportSets)
+            {
+                errors.Add(MlErrors.noSetHierarchy);
+            }
+
+            bool isResumption = !String.IsNullOrEmpty(resumptionToken);
+            if (isResumption && !isRoundtrip)
+            {
+                if (!(Properties.resumptionTokens.ContainsKey(resumptionToken) &&
+                    Properties.resumptionTokens[resumptionToken].Verb == "ListSets" &&
+                    Properties.resumptionTokens[resumptionToken].ExpirationDate >= DateTime.UtcNow))
+                {
+                    errors.Insert(0, MlErrors.badResumptionArgument);
+                }
+
+                if (errors.Count == 0)
+                {
+                    return ListSets(resumptionToken, true, new List<XElement>());
+                }
+            }
+
+            XElement request = new XElement("request",
+                new XAttribute("verb", "ListSets"),
+                isResumption ? new XAttribute("resumptionToken", resumptionToken) : null,
+                Properties.baseURL);
+
+            if (errors.Count > 0)
+            {
+                errors.Insert(0, request); /* add request on the first position, that it will be diplayed before errors */
+                return CreateXml(errors.ToArray());
+            }
+            OAIHelper oaiHelper = new OAIHelper();
+            var sets = oaiHelper.GetAllSets();
+
+            bool isCompleted = isResumption ?
+                Properties.resumptionTokens[resumptionToken].Cursor + sets.Count ==
+                Properties.resumptionTokens[resumptionToken].CompleteListSize :
+                false;
+
+            XElement list = new XElement("ListSets",
+                from s in sets
+                select new XElement("set",
+                    new XElement("setSpec", s.Spec),
+                    new XElement("setName", s.Name),
+                    String.IsNullOrEmpty(s.Description) ? null
+                        : new XElement("setDescription", s.Description),
+                    MlEncode.SetDescription(s.AdditionalDescriptions, Properties.granularity)),
+                isResumption ? /* add resumption token or not */
+                    MlEncode.ResumptionToken(Properties.resumptionTokens[resumptionToken], resumptionToken, isCompleted)
+                    : null);
+
+            if (isResumption)
+            {
+                if (isCompleted)
+                {
+                    Properties.resumptionTokens.Remove(resumptionToken);
+                }
+                else
+                {
+                    Properties.resumptionTokens[resumptionToken].Cursor =
+                        Properties.resumptionTokens[resumptionToken].Cursor + sets.Count;
+                }
+            }
+
+            return CreateXml(new XElement[] { request, list });
+        }
+
+        #endregion listSets
 
         /// <summary>
         /// Creates response xml document

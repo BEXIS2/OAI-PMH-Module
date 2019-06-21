@@ -39,8 +39,8 @@
         public Nullable<bool> AdditionalBool3 { get; set; }
 
         // PanSimple Extentions
-
         public string Keyword { get; set; }
+
         public string Parameter { get; set; }
         public string Method { get; set; }
         public string Sensor { get; set; }

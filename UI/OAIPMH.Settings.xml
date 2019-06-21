@@ -1,4 +1,5 @@
 <settings>
+  <!-- if RepositoryName is empty, the application name is used-->
   <entry key="RepositoryName" value="Test repository" type="String" />
   <entry key="BaseURL" value="http://bx2train.inf-bb.uni-jena.de:8022/api/oai" type="String" />
   <!--
@@ -7,8 +8,11 @@
   transient   : No guaratee that a list of deletions is maintained persistently or consistently
   -->
   <entry key="DeletedRecord" value="no" type="string" />
-  <entry key="Granularity" value="yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'" type="String" />
+  <entry key="Granularity" value="YYYY-MM-DDThh:mm:ssZ" type="String" />
+
+  <!-- if AdminEmails is empty, then system admin email is used-->
   <entry key="AdminEmails" value="david.blaa@googlemail.com" type="String" />
+
   <entry key="Compression" value="" type="String" />
   <entry key="Description" value="" type="String" />
   <entry key="SupportSets" value="false" type="Boolean" />
