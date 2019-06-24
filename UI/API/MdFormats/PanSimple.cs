@@ -27,25 +27,25 @@ namespace BExIS.Modules.OAIPMH.UI.API.MdFormats
 
         public static Metadata Decode(XElement metadata)
         {
-            //XElement root = metadata.Element(MlNamespaces.oaiDc + "dc");
+            XElement root = metadata.Element(MlNamespaces.psNs + "dataset");
 
             return new Metadata()
             {
-                //Title = MlDecode.Element(root, MlNamespaces.dcNs + "title"),
-                //Creator = MlDecode.Element(root, MlNamespaces.dcNs + "creator"),
-                //Subject = MlDecode.Element(root, MlNamespaces.dcNs + "subject"),
-                //Description = MlDecode.Element(root, MlNamespaces.dcNs + "description"),
-                //Publisher = MlDecode.Element(root, MlNamespaces.dcNs + "publisher"),
-                //Contributor = MlDecode.Element(root, MlNamespaces.dcNs + "contributor"),
-                //Date = MlDecode.SafeDateTime(root.Element(MlNamespaces.dcNs + "date")),
-                //Type = MlDecode.Element(root, MlNamespaces.dcNs + "type"),
-                //Format = MlDecode.Element(root, MlNamespaces.dcNs + "format"),
-                //Identifier = MlDecode.Element(root, MlNamespaces.dcNs + "identifier"),
-                //Source = MlDecode.Element(root, MlNamespaces.dcNs + "source"),
-                //Language = MlDecode.Element(root, MlNamespaces.dcNs + "language"),
-                //Relation = MlDecode.Element(root, MlNamespaces.dcNs + "relation"),
-                //Coverage = MlDecode.Element(root, MlNamespaces.dcNs + "coverage"),
-                //Rights = MlDecode.Element(root, MlNamespaces.dcNs + "rights"),
+                Title = MlDecode.Element(root, MlNamespaces.dcNs + "title"),
+                Creator = MlDecode.Element(root, MlNamespaces.dcNs + "creator"),
+                Subject = MlDecode.Element(root, MlNamespaces.dcNs + "subject"),
+                Description = MlDecode.Element(root, MlNamespaces.dcNs + "description"),
+                Publisher = MlDecode.Element(root, MlNamespaces.dcNs + "publisher"),
+                Contributor = MlDecode.Element(root, MlNamespaces.dcNs + "contributor"),
+                Date = MlDecode.SafeDateTime(root.Element(MlNamespaces.dcNs + "date")),
+                Type = MlDecode.Element(root, MlNamespaces.dcNs + "type"),
+                Format = MlDecode.Element(root, MlNamespaces.dcNs + "format"),
+                Identifier = MlDecode.Element(root, MlNamespaces.dcNs + "identifier"),
+                Source = MlDecode.Element(root, MlNamespaces.dcNs + "source"),
+                Language = MlDecode.Element(root, MlNamespaces.dcNs + "language"),
+                Relation = MlDecode.Element(root, MlNamespaces.dcNs + "relation"),
+                Coverage = MlDecode.Element(root, MlNamespaces.dcNs + "coverage"),
+                Rights = MlDecode.Element(root, MlNamespaces.dcNs + "rights"),
                 MdFormat = (byte)Enums.MetadataFormats.PanSimple
             };
             //throw new NotImplementedException();
@@ -53,6 +53,11 @@ namespace BExIS.Modules.OAIPMH.UI.API.MdFormats
 
         public static XElement Encode(Metadata panSimple, string granularity)
         {
+            // The DatetimeFormat for OAI-PMH is only valid when it is like this YYYY.MM.DD
+            // but c# ist not understanding YYYY ->it must replaced with yyyy & DD -> dd
+            granularity = granularity.Replace('Y', 'y');
+            granularity = granularity.Replace('D', 'd');
+
             XElement Element = new XElement(MlNamespaces.psNs + "dataset",
                    /*Namespaces*/
                    new XAttribute(XNamespace.Xmlns + "dc", MlNamespaces.dcNs),

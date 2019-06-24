@@ -1,14 +1,18 @@
 ﻿using BExIS.Modules.OAIPMH.UI.API;
+using BExIS.Modules.OAIPMH.UI.API.Common;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Web.Http;
+using System.Xml.Linq;
 
 namespace BExIS.Modules.OAIPMH.UI.Controllers
 {
     public class oaiController : ApiController
     {
-        public HttpResponseMessage Identify()
+        public HttpResponseMessage Identify(bool unexpectedParameters)
         {
-            return Common.XDocResponse(DataProvider.CheckAttributes("Identify"));
+            return Common.XDocResponse(DataProvider.CheckAttributes("Identify", null, null, null, null, null, null, unexpectedParameters));
         }
 
         public HttpResponseMessage CheckAttributes(
@@ -18,7 +22,8 @@ namespace BExIS.Modules.OAIPMH.UI.Controllers
             string metadataPrefix,
             string set,
             string resumptionToken,
-            string identifier)
+            string identifier,
+            bool unexpectedParameters)
         {
             return Common.XDocResponse(DataProvider.CheckAttributes(
                         verb,
@@ -27,14 +32,29 @@ namespace BExIS.Modules.OAIPMH.UI.Controllers
                         metadataPrefix,
                         set,
                         resumptionToken,
-                        identifier));
+                        identifier,
+                        unexpectedParameters));
         }
 
-        // GET api/oai
-        [HttpGet]
-        public HttpResponseMessage Get()
+        private bool unexpectedParametersExist()
         {
-            return Identify();
+            IEnumerable<KeyValuePair<string, string>> dic = this.Request.GetQueryNameValuePairs();
+
+            List<string> tmp = new List<string>();
+            tmp.Add("verb");
+            tmp.Add("from");
+            tmp.Add("until");
+            tmp.Add("metadataPrefix");
+            tmp.Add("set");
+            tmp.Add("resumptionToken");
+            tmp.Add("identifier");
+
+            foreach (KeyValuePair<string, string> d in dic)
+            {
+                if (!tmp.Contains(d.Key)) return true;
+            }
+
+            return false;
         }
 
         // GET api/oai
@@ -51,50 +71,77 @@ namespace BExIS.Modules.OAIPMH.UI.Controllers
         /// <returns></returns>
         [HttpGet]
         public HttpResponseMessage Get(
-            string verb,
-            string from = null,
-            string until = null,
-            string metadataPrefix = null,
-            string set = null,
-            string resumptionToken = null,
-            string identifier = null)
-        {
-            return CheckAttributes(
-                        verb,
-                        from,
-                        until,
-                        metadataPrefix,
-                        set,
-                        resumptionToken,
-                        identifier);
-        }
+            [FromUri] string verb = null,
+            [FromUri] string from = null,
+            [FromUri] string until = null,
+            [FromUri] string metadataPrefix = null,
+            [FromUri] string set = null,
+            [FromUri] string resumptionToken = null,
+            [FromUri] string identifier = null)
 
-        // POST api/oai
-        [HttpPost]
-        public HttpResponseMessage Post()
         {
-            return Identify();
+            bool unexpectedParameters = unexpectedParametersExist();
+
+            if (verb == null &&
+                    from == null &&
+                    until == null &&
+                    metadataPrefix == null &&
+                    set == null &&
+                    resumptionToken == null &&
+                    identifier == null)
+            {
+                return Identify(unexpectedParameters);
+            }
+            else
+            {
+                return CheckAttributes(
+                            verb,
+                            from,
+                            until,
+                            metadataPrefix,
+                            set,
+                            resumptionToken,
+                            identifier,
+                            unexpectedParameters);
+            }
         }
 
         // POST api/oai
         [HttpPost]
         public HttpResponseMessage Post(
-            string verb,
-            string from = null,
-            string until = null,
-            string metadataPrefix = null,
-            string set = null,
-            string resumptionToken = null,
-            string identifier = null)
+            [FromUri] string verb = null,
+            [FromUri] string from = null,
+            [FromUri] string until = null,
+            [FromUri] string metadataPrefix = null,
+            [FromUri] string set = null,
+            [FromUri] string resumptionToken = null,
+            [FromUri] string identifier = null)
+
         {
-            return CheckAttributes(
-                        verb,
-                        from,
-                        until,
-                        metadataPrefix,
-                        set,
-                        resumptionToken,
-                        identifier);
+            bool unexpectedParameters = unexpectedParametersExist();
+
+            if (verb == null &&
+                    from == null &&
+                    until == null &&
+                    metadataPrefix == null &&
+                    set == null &&
+                    resumptionToken == null &&
+                    identifier == null)
+            {
+                return Identify(unexpectedParameters);
+            }
+            else
+            {
+                return CheckAttributes(
+                            verb,
+                            from,
+                            until,
+                            metadataPrefix,
+                            set,
+                            resumptionToken,
+                            identifier,
+                            unexpectedParameters);
+            }
         }
     }
 }

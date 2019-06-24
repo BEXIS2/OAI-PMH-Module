@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using Vaiona.Model.MTnt;
+using Vaiona.Utils.Cfg;
 using static BExIS.Modules.OAIPMH.UI.API.Common.Enums;
 
 namespace BExIS.Modules.OAIPMH.UI.API
@@ -25,7 +26,8 @@ namespace BExIS.Modules.OAIPMH.UI.API
             string metadataPrefix = null,
             string set = null,
             string resumptionToken = null,
-            string identifier = null)
+            string identifier = null,
+            bool unexpectedParameters = false)
         {
             bool isVerb = !String.IsNullOrEmpty(verb);
             bool isFrom = !String.IsNullOrEmpty(from);
@@ -34,6 +36,12 @@ namespace BExIS.Modules.OAIPMH.UI.API
             bool isSet = !String.IsNullOrEmpty(set);
             bool isResumption = !String.IsNullOrEmpty(resumptionToken);
             bool isIdentifier = !String.IsNullOrEmpty(identifier);
+
+            if (unexpectedParameters)
+            {
+                XElement request = new XElement("request", Properties.baseURL);
+                return CreateXml(new XElement[] { request, MlErrors.badVerb });
+            }
 
             if (!isVerb)
             {
@@ -82,16 +90,16 @@ namespace BExIS.Modules.OAIPMH.UI.API
 
                         return ListMetadataFormats(identifier, errors);
                     }
-                //case "ListSets":
-                //    {
-                //        if (isFrom) errors.Add(MlErrors.badFromArgumentNotAllowed);
-                //        if (isUntil) errors.Add(MlErrors.badUntilArgumentNotAllowed);
-                //        if (isPrefixOk) errors.Add(MlErrors.badMetadataArgumentNotAllowed);
-                //        if (isSet) errors.Add(MlErrors.badSetArgumentNotAllowed);
-                //        if (isIdentifier) errors.Add(MlErrors.badIdentifierArgumentNotAllowed);
+                case "ListSets":
+                    {
+                        if (isFrom) errors.Add(MlErrors.badFromArgumentNotAllowed);
+                        if (isUntil) errors.Add(MlErrors.badUntilArgumentNotAllowed);
+                        if (isPrefixOk) errors.Add(MlErrors.badMetadataArgumentNotAllowed);
+                        if (isSet) errors.Add(MlErrors.badSetArgumentNotAllowed);
+                        if (isIdentifier) errors.Add(MlErrors.badIdentifierArgumentNotAllowed);
 
-                //        return ListSets(resumptionToken, false, errors);
-                //    }
+                        return ListSets(resumptionToken, false, errors);
+                    }
                 default:
                     {
                         XElement request = new XElement("request", Properties.baseURL);
@@ -243,6 +251,21 @@ namespace BExIS.Modules.OAIPMH.UI.API
             {
                 errors.Add(MlErrors.badFromAndUntilArgument);
             }
+
+            // if both dates exist, they should be in the same format
+            if (!string.IsNullOrEmpty(from) && !string.IsNullOrEmpty(until))
+            {
+                if (from.Count() != until.Count())
+                {
+                    errors.Add(MlErrors.badFromAndUntilFormatArgument);
+                }
+            }
+
+            if (fromDate == null) fromDate = new DateTime(1900, 1, 1);
+            if (until == null) untilDate = DateTime.Now;
+
+            if (untilDate != null) untilDate = ((DateTime)untilDate).AddMilliseconds(999);
+
             /* METADATA PREFIX */
             bool isPrefixOk = !String.IsNullOrEmpty(metadataPrefix);
             /* SETS */
@@ -349,14 +372,7 @@ namespace BExIS.Modules.OAIPMH.UI.API
 
                 if (isSet)
                 {
-                    //recordsQuery = from rq in recordsQuery
-                    //               from s in context.OAISet
-                    //               from l in sets
-                    //               where s.Spec == l
-                    //               where rq.OAI_Set == s.Spec
-                    //               select rq;
-
-                    throw new NotImplementedException();
+                    recordsQuery = recordsQuery.Where(h => h.OAI_Set.Equals(AppConfiguration.ApplicationName)).ToList();
                 }
 
                 int recordsCount = recordsQuery.Count();

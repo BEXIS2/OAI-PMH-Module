@@ -49,6 +49,11 @@ namespace BExIS.Modules.OAIPMH.UI.API.MdFormats
 
         public static XElement Encode(Metadata dublinCore, string granularity)
         {
+            // The DatetimeFormat for OAI-PMH is only valid when it is like this YYYY.MM.DD
+            // but c# ist not understanding YYYY ->it must replaced with yyyy & DD -> dd
+            granularity = granularity.Replace('Y', 'y');
+            granularity = granularity.Replace('D', 'd');
+
             return new XElement(MlNamespaces.oaiDc + "dc",
                     new XAttribute(XNamespace.Xmlns + "oai_dc", MlNamespaces.oaiDc),
                     new XAttribute(XNamespace.Xmlns + "dc", MlNamespaces.dcNs),
