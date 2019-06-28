@@ -231,7 +231,7 @@ namespace BExIS.Modules.OAIPMH.UI.Helper
         private string getEntityName(long datasetid)
         {
             XmlDatasetHelper xmlDatasetHelper = new XmlDatasetHelper();
-            return xmlDatasetHelper.GetEntityType(datasetid);
+            return xmlDatasetHelper.GetEntityName(datasetid);
         }
 
         private List<string> getFormats(long datasetid)

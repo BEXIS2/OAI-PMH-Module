@@ -62,7 +62,6 @@ namespace BExIS.Modules.OAIPMH.UI.API.MdFormats
                    /*Namespaces*/
                    new XAttribute(XNamespace.Xmlns + "dc", MlNamespaces.dcNs),
                    new XAttribute(XNamespace.Xmlns + "xsi", MlNamespaces.psXsi),
-                   new XAttribute(MlNamespaces.psSchemaLocation + "schemaLocation", MlNamespaces.psSchemaLocation),
                    /* content */
                    /*Subject*/
                    MlEncode.Element(MlNamespaces.dcNs + "title", panSimple.Title),

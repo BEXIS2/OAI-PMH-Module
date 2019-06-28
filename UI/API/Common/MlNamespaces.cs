@@ -31,6 +31,6 @@ namespace BExIS.Modules.OAIPMH.UI.API.Common
 
         public static XNamespace psNs = "urn:pangaea.de:dataportals";
         public static XNamespace psSchemaLocation = "https://ws.pangaea.de/schemas/pansimple/pansimple.xsd";
-        public static XNamespace psXsi = "urn:pangaea.de:dataportals http://ws.pangaea.de/schemas/pansimple/pansimple.xsd";
+        public static XNamespace psXsi = "http://ws.pangaea.de/schemas/pansimple/pansimple.xsd";
     }
 }
